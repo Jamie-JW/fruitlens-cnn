@@ -21,3 +21,4 @@ env/
 .vscode/
 .idea/
 *.keras
+!models/model_a_custom_cnn.keras
