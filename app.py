@@ -1,5 +1,14 @@
+from pathlib import Path
+
+import numpy as np
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageOps
+import keras
+
+# Model settings (confirmed by testing with real apple and banana photos)
+MODEL_PATH = Path(__file__).parent / "models" / "model_a_custom_cnn.keras"
+IMAGE_SIZE = (224, 224)
+CLASS_NAMES = ["Apple", "Banana"]  # output 0 = apple, output 1 = banana
 
 # Configure the browser page
 st.set_page_config(
@@ -36,6 +45,22 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Load the CNN model once and reuse it (Streamlit re-runs this file on every click)
+@st.cache_resource
+def load_model():
+    return keras.models.load_model(MODEL_PATH)
+
+
+def predict(image):
+    """Return (fruit name, confidence) for a PIL image."""
+    image = ImageOps.exif_transpose(image).convert("RGB")
+    image = image.resize(IMAGE_SIZE, Image.BILINEAR)
+    pixels = np.asarray(image, dtype="float32")  # keep 0-255, no division
+    probabilities = load_model().predict(pixels[None], verbose=0)[0]
+    best = int(np.argmax(probabilities))
+    return CLASS_NAMES[best], float(probabilities[best])
+
+
 # Application heading
 st.title("🍎 FruitLens 🍌")
 st.write("Upload a photo of an apple or banana.")
@@ -57,6 +82,8 @@ if uploaded_file is not None:
         width=180
     )
 
-    # The CNN model will be connected here later
+        # Classify the uploaded image with the CNN model
     if st.button("Classify Fruit"):
-        st.info("The CNN model has not been connected yet.")
+        with st.spinner("Recognising fruit..."):
+            fruit, confidence = predict(image)
+        st.success(f"Prediction: {fruit} ({confidence:.0%} confidence)")
