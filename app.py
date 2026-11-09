@@ -9,6 +9,7 @@ import keras
 MODEL_PATH = Path(__file__).parent / "models" / "model_a_custom_cnn.keras"
 IMAGE_SIZE = (224, 224)
 CLASS_NAMES = ["Apple", "Banana"]  # output 0 = apple, output 1 = banana
+CONFIDENCE_THRESHOLD = 0.8  # below this, show "Unknown" (not sure it is an apple or banana)
 
 # Configure the browser page
 st.set_page_config(
@@ -86,4 +87,10 @@ if uploaded_file is not None:
     if st.button("Classify Fruit"):
         with st.spinner("Recognising fruit..."):
             fruit, confidence = predict(image)
-        st.success(f"Prediction: {fruit} ({confidence:.0%} confidence)")
+        if confidence >= CONFIDENCE_THRESHOLD:
+            st.success(f"Prediction: {fruit} ({confidence:.0%} confidence)")
+        else:
+            st.warning(
+                f"Unknown: this may not be an apple or banana "
+                f"(best guess {fruit}, {confidence:.0%} confidence)"
+            )
