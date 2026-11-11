@@ -33,6 +33,82 @@ PREPROCESS = T.Compose([
     T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
 ])
 
+# Fruit information shown after a prediction (EPIC #5: nutrition, health, ripeness, uses)
+# Typical values for one medium fruit, not a measurement of the photo (source: USDA FoodData Central)
+FRUIT_INFO = {
+    "Apple": {
+        "description": "A fruit with crisp flesh and a sweet or tart flavour.",
+        "serving": "One medium apple (about 182 g)",
+        "calories": "95 kcal",
+        "carbohydrates": "25 g",
+        "fibre": "4.4 g",
+        "vitamin_c": "8.4 mg",
+        "benefits": [
+            "Provides dietary fibre, good for digestion",
+            "Contains vitamin C and antioxidants",
+        ],
+        "ripeness": [
+            "Ripe apples are firm, with smooth skin and no soft spots",
+            "A sweet smell means it is ready to eat",
+            "Wrinkled or soft skin means it is getting old",
+        ],
+        "uses": [
+            "Eat fresh as a snack",
+            "Bake into apple pie or crumble",
+            "Slice into salads, or make apple juice",
+        ],
+        "storage": "Store in the refrigerator to help keep it fresh.",
+    },
+    "Banana": {
+        "description": "A soft fruit with a naturally sweet flavour.",
+        "serving": "One medium banana (about 118 g)",
+        "calories": "105 kcal",
+        "carbohydrates": "27 g",
+        "fibre": "3.1 g",
+        "vitamin_c": "10.3 mg",
+        "benefits": [
+            "Rich in potassium and vitamin B6",
+            "Provides carbohydrates for quick energy",
+        ],
+        "ripeness": [
+            "Green skin: not ripe yet",
+            "Yellow skin: ripe and ready to eat",
+            "Brown spots: very ripe and sweet, best for baking",
+        ],
+        "uses": [
+            "Eat fresh as a quick snack",
+            "Blend into a smoothie",
+            "Bake banana bread or add to pancakes",
+        ],
+        "storage": "Keep at room temperature until ripe.",
+    },
+}
+
+
+def show_fruit_info(fruit):
+    """Show typical information about the predicted fruit in three tabs."""
+    info = FRUIT_INFO.get(fruit)
+    if info is None:  # e.g. an "Other" class has no information
+        return
+    st.subheader(f"About the {fruit.lower()}")
+    st.write(info["description"])
+    nutrition_tab, ripeness_tab, uses_tab = st.tabs(["🥗 Nutrition", "🕒 Ripeness", "🍰 Uses and storage"])
+    with nutrition_tab:
+        st.write(f"Typical values for: {info['serving']}")
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Calories", info["calories"])
+        col2.metric("Carbs", info["carbohydrates"])
+        col3.metric("Fibre", info["fibre"])
+        col4.metric("Vitamin C", info["vitamin_c"])
+        st.markdown("\n".join(f"- {line}" for line in info["benefits"]))
+        st.caption("Typical values (USDA FoodData Central). Real fruit varies with size and variety.")
+    with ripeness_tab:
+        st.markdown("\n".join(f"- {line}" for line in info["ripeness"]))
+    with uses_tab:
+        st.markdown("\n".join(f"- {line}" for line in info["uses"]))
+        st.write(f"**Storage:** {info['storage']}")
+
+
 st.set_page_config(page_title="FruitLens (ResNet34)", page_icon="🔍")
 st.title("🔍 FruitLens: ResNet34 version")
 st.caption("Alternative model (PyTorch ResNet34). The main FruitLens app is separate.")
@@ -58,7 +134,8 @@ if uploaded is not None:
             st.error(f"Not an apple or banana ({conf:.0%})")
         else:
             st.success(f"{CLASSES[i]} ({conf:.0%})")
+            show_fruit_info(CLASSES[i])
 
-        st.write("All outputs:")
-        for name, p in zip(CLASSES, probs):
-            st.progress(float(p), text=f"{name}: {float(p):.1%}")
+        with st.expander("All outputs"):
+            for name, p in zip(CLASSES, probs):
+                st.progress(float(p), text=f"{name}: {float(p):.1%}")
