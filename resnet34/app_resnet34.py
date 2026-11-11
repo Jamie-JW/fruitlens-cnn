@@ -110,8 +110,7 @@ def show_fruit_info(fruit):
 
 
 st.set_page_config(page_title="FruitLens (ResNet34)", page_icon="🔍")
-st.title("🔍 FruitLens: ResNet34 version")
-st.caption("Alternative model (PyTorch ResNet34). The main FruitLens app is separate.")
+st.title("🔍 FruitLens")
 
 model = load_model()
 uploaded = st.file_uploader("Upload a photo", type=["jpg", "jpeg", "png"])
