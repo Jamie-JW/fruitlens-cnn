@@ -10,7 +10,7 @@ It does not change the main app (`app.py` and `models/` in the repository root).
 - Confidence threshold: 90% (below this the app shows "Unknown")
 - Reported test accuracy: 98.99%
 
-**Source:** this model was trained by a FruitLens team member as part of **another course**, and is included here as a comparison / backup model, not as the team's main CNN.
+This model was contributed by a team member as an alternative / backup model for comparison.
 
 ## Run locally
 ```
