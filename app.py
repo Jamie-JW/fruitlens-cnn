@@ -13,7 +13,7 @@ CLASS_NAMES = ["Apple", "Banana"]  # output 0 = apple, output 1 = banana
 # Configure the browser page
 st.set_page_config(
     page_title="FruitLens",
-    page_icon="🍎"
+    page_icon="🔍"
 )
 
 # Increase font sizes
@@ -138,7 +138,7 @@ def predict(image):
 
 
 # Application heading
-st.title("🍎 FruitLens 🍌")
+st.title("🔍 FruitLens ")
 st.write("Upload a photo of an apple or banana.")
 
 # Allow the user to upload an image
